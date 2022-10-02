@@ -48,36 +48,48 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
 //////////////////////////////////////////////////////////////////////////////////////////////////]
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
+
+int main(){
+    int N; cin >> N;
+    vector<int> A(N);
+    rep(i, N){
+        cin >> A[i];
+    }
+
+    sort(all(A));
+    int cnt = 0;
+    deque<int> que;
+    map<int, bool> used;
+    for(auto a: A){
+        if(used[a]){
             cnt++;
         }
         else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
+            que.push_back(a);
+            used[a] = true;
         }
     }
-    res.push_back({last, cnt});
-    return res;
-}
+    rep(i, cnt) que.push_back(INF);
 
-int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    for(int i=1; i<=303030; i++){
+        if(que.empty()){
+            cout << i - 1 << endl;
+            exit(0);            
+        }
+        //i巻を持っている
+        if(que.front() == i){
+            que.pop_front();
+        }
+        //i巻を持っていない
+        else{
+            if(que.size() >= 2){
+                que.pop_back();
+                que.pop_back();
+            }
+            else{
+                cout << i - 1 << endl;
+                exit(0);
+            }
+        }
     }
-    cout << "Yes" << endl;
 }

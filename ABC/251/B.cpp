@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
-#include <atcoder/all>
 using namespace std;
-using namespace atcoder;
 using ll = long long;
 using ull = unsigned long long;
 using pii = pair<int, int>;
@@ -46,38 +44,24 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
-    }
-    cout << "Yes" << endl;
+    int N, W; cin >> N >> W;
+    vector<int> A(N); rep(i, N) cin >> A[i];
+
+    vector<int> memo(3e6+10);
+    //1個
+    rep(i, N) memo[A[i]] = true;
+    //2個
+    rep(i, N)rept(j, i+1, N) memo[A[i] + A[j]] = true;
+    //3個
+    rep(i, N)rept(j, i+1, N)rept(k, j+1, N) memo[A[i] + A[j] + A[k]] = true;
+
+    int res = 0;
+    rep(i, W+1) res += memo[i];
+    cout << res << ln;
 }
+

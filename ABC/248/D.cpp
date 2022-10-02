@@ -46,38 +46,41 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N; cin >> N;
+    vector<vector<int>> index(202020); //各aが登場するインデックス
+    rep(i, N){
+        int a; cin >> a;
+        index[a].push_back(i);
     }
-    cout << "Yes" << endl;
+
+    int Q; cin >> Q;
+    vector<int> ans;
+    while(Q--){
+        int l, r, x; cin >> l >> r >> x; l--, r--;
+        //l以上の最小のidxを求める
+        int left = -1, right = index[x].size();
+        while(right - left > 1){
+            int mid = (right + left) / 2;
+            if(index[x][mid] >= l) right = mid;
+            else left = mid;
+        }
+        int ok_left = right;
+        //r以下の最大のidxを求める
+        left = -1, right = index[x].size();
+        while(right - left > 1){
+            int mid = (right + left) / 2;
+            if(index[x][mid] <= r) left = mid;
+            else right = mid;
+        }
+        int ok_right = left;
+
+        ans.push_back(max(0, ok_right - ok_left + 1));
+    }
+    fore(a, ans) cout << a << ln;
 }
+

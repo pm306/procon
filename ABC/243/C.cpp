@@ -46,38 +46,50 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
+//座標圧縮 配列Vを0-indexedで圧縮した配列retを返す
+template<class T> vector<int> CompressNumber(vector<T> V){
+    vector<T> vals = V;
+    sort(vals.begin(), vals.end());
+    vals.erase(unique(vals.begin(), vals.end()), vals.end()); //重複削除
+
+    vector<int> ret;
+    for(auto v: V){
+        int idx = lower_bound(vals.begin(), vals.end(), v) - vals.begin();
+        ret.push_back(idx);
     }
-    res.push_back({last, cnt});
-    return res;
+    return ret;
 }
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
+    int N; cin >> N;
+    vector<int> X(N), Y(N);
+    rep(i, N) cin >> X[i] >> Y[i];
+    string S; cin >> S;
+
+    X = CompressNumber(X);
+    Y = CompressNumber(Y);
     
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    vector<vector<pii>> lst(202020); //x座標, インデックス
+    rep(i, N){
+        lst[Y[i]].push_back({X[i], i});
     }
-    cout << "Yes" << endl;
+    rep(i, 202020){
+        sort(all(lst[i]));
+    }
+
+    rep(i, 202020){
+        auto& vec = lst[i];
+        if(vec.empty())continue;
+        bool isright = false;
+        for(auto& [x, idx] : vec){
+            if(isright and S[idx] == 'L'){
+                drop("Yes");
+            }
+            isright = S[idx] == 'R';
+        }
+    }
+    cout << "No" << ln;
 }
+

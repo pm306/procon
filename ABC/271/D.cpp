@@ -48,36 +48,40 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
 //////////////////////////////////////////////////////////////////////////////////////////////////]
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
-
+bool dp[110][10101];
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N, S; cin >> N >> S;
+    vector<int> a(N), b(N);
+    rep(i, N){
+        cin >> a[i] >> b[i];
     }
-    cout << "Yes" << endl;
+
+    dp[0][0] = true;
+    rep(i, N){
+        rep(j, 10001){
+            if(!dp[i][j]) continue;
+            dp[i+1][j+a[i]] = dp[i+1][j+b[i]] = true;
+        }
+    }
+    if(!dp[N][S]){
+        cout << "No" << endl;
+    }
+    else{
+        cout << "Yes" << endl;
+        
+        string res = "";
+        int cur = S;
+        for(int i=N; i>0; i--){
+            if(cur - a[i-1] >= 0 and dp[i-1][cur-a[i-1]]){
+                res += "H";
+                cur -= a[i-1];
+            }
+            else if(cur - b[i-1] >= 0 and dp[i-1][cur-b[i-1]]){
+                res += "T";
+                cur -= b[i-1];
+            }
+        }
+        reverse(all(res));
+        cout << res << endl;
+    }
 }

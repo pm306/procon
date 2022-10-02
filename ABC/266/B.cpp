@@ -46,38 +46,20 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+const int MOD = 998244353;
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    ll N; cin >> N;
+
+    if(N >= 0){
+        cout << N % MOD << ln;
     }
-    cout << "Yes" << endl;
+    else{
+        ll res = N % MOD;
+        if(res < 0) res += MOD;
+        cout << res << ln;
+    }
 }
+

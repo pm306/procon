@@ -46,38 +46,29 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+using mint = modint998244353;
 
+const int mx = 2501;
+mint dp[55][2525];
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N, M, K; cin >> N >> M >> K;
+
+    //dp[i][sum]:=前からi番目までの数列を見て、合計がsumである場合の数
+    dp[0][0] = 1;
+    for(int i=0; i<N; i++){
+        //直前までの合計がjである
+        for(int j=0; j<=mx; j++){
+            //前からi+1番目の数列がk(1<=k<=M)である場合
+            for(int k=1; k<=M; k++){
+                dp[i+1][j + k] += dp[i][j].val();
+            }
+        }
     }
-    cout << "Yes" << endl;
+
+    mint res = 0;
+    rep(i, K+1) res += dp[N][i].val();
+    cout << res.val() << ln;
 }
+

@@ -46,38 +46,63 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
+//座標圧縮 配列Vを0-indexedで圧縮した配列retを返す
+template<class T> vector<int> CompressNumber(vector<T> V){
+    vector<T> vals = V;
+    sort(vals.begin(), vals.end());
+    vals.erase(unique(vals.begin(), vals.end()), vals.end()); //重複削除
+
+    vector<int> ret;
+    for(auto v: V){
+        int idx = lower_bound(vals.begin(), vals.end(), v) - vals.begin();
+        ret.push_back(idx);
     }
-    res.push_back({last, cnt});
-    return res;
+    return ret;
 }
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N; cin >> N;
+    vector<int> A(N); rep(i, N) cin >> A[i];
+
+    //ソートして圧縮
+    sort(all(A));
+    A = CompressNumber(A);
+
+    //数ごとの半開区間をとる
+    vector<int> il(202020), ir(202020);
+    int last = -1;
+    rep(i, N){
+        if(i == 0){
+            last = A[i];
+            il[A[i]] = i;
+        }
+        else if(i == N - 1){
+            if(last != A[i]){
+                ir[A[i-1]] = i;
+                il[A[i]] = i;
+                ir[A[i]] = i + 1;
+            }
+            else{
+                ir[A[i]] = i + 1;
+            }           
+        }
+        else{
+            if(last != A[i]){
+                last = A[i];
+                ir[A[i-1]] = i;
+                il[A[i]] = i;
+            }
+        }
     }
-    cout << "Yes" << endl;
+
+    //数え上げ
+    ll res = 0; 
+    for(int i=1; i<N-1; i++){
+        ll left = il[A[i]], right = N - ir[A[i]];
+        res += left * right;
+    }
+    cout << res << ln;
 }
+

@@ -46,38 +46,33 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
 
+ll dp[101010][5];
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N; cin >> N;
+    vector score(101010, vector<ll>(5));
+    rep(i, N){
+        int t, x; ll a;
+        cin >> t >> x >> a;
+        score[t][x] = a;
     }
-    cout << "Yes" << endl;
+
+    rep(i, 101010)rep(j, 5) dp[i][j] = -1;
+    dp[0][0] = 0;
+    rep(i, 100000)rep(j, 5){
+        if(dp[i][j] == -1) continue;
+        if(j > 0){
+            chmax(dp[i+1][j-1], dp[i][j] + score[i+1][j-1]);
+        }
+        chmax(dp[i+1][j], dp[i][j] + score[i+1][j]);
+        if(j < 4){
+            chmax(dp[i+1][j+1], dp[i][j] + score[i+1][j+1]);
+        }
+    }
+    
+    ll res = *max_element(dp[100000], dp[100000] + 5);
+    cout << res << ln;
 }
+

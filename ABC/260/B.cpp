@@ -46,38 +46,60 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N, X, Y, Z; cin >> N >> X >> Y >> Z;
+    vector<int> math(N), eng(N), sum(N);
+    rep(i, N){
+        cin >> math[i];
+        sum[i] += math[i];
     }
-    cout << "Yes" << endl;
+    rep(i, N){
+        cin >> eng[i];
+        sum[i] += eng[i];
+    }
+
+    //評価値ｘに従って生徒を並べ替える関数
+    auto sortFunc = [&](vector<int> x) -> vector<int>{
+        vector<pii> sv;
+        rep(i, N) sv.push_back({x[i], -i});
+        sort(all(sv), greater<pii>());
+        
+        vector<int> ret;
+        rep(i, N) ret.push_back(-sv[i].second);
+        return ret;
+    };
+
+    int cnt = 0;
+    vector<int> used(N), ans; //used:i番目の生徒が合格かどうか
+    //数学
+    auto si = sortFunc(math);
+    for(auto idx : si)if(cnt < X){
+        cnt++;
+        used[idx] = true;
+        ans.push_back(idx);
+    }
+    //英語
+    cnt = 0;
+    si = sortFunc(eng);
+    for(auto idx : si)if(cnt < Y and !used[idx]){
+        cnt++;
+        used[idx] = true;
+        ans.push_back(idx);
+    }
+    //総合  
+    cnt = 0; 
+    si = sortFunc(sum);
+    for(auto idx : si)if(cnt < Z and !used[idx]){
+        cnt++;
+        used[idx] = true;
+        ans.push_back(idx);
+    } 
+
+    sort(all(ans));
+    fore(a, ans) cout << a + 1 << ln;
 }
+

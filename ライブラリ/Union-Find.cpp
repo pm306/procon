@@ -46,38 +46,66 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
+struct UnionFind{
+    vector<int> par, siz;
+
+    // 初期化
+    UnionFind(int n) : par(n, -1), siz(n, 1){ }
+
+    // 根を求める
+    int root(int x) {
+        if (par[x] == -1) return x;
+        else return par[x] = root(par[x]);
     }
-    res.push_back({last, cnt});
-    return res;
-}
+
+    // x と y が同じグループに属するかどうか(=根が一致するかどうか)
+    bool issame(int x, int y) {
+        return root(x) == root(y);
+    }
+
+    // x を含むグループと y を含むグループを併合する
+    bool merge(int x, int y) {
+        // x, yをそれぞれ根まで移動する
+        x = root(x), y = root(y);
+
+        // 連結なら何もしない
+        if (x == y) return false;
+
+        // union by size (y側のサイズが小さくなるようにする)
+        if (siz[x] < siz[y]) swap(x, y);
+
+        // y を x の子とする
+        par[y] = x;
+        siz[x] += siz[y];
+        return true;
+
+    }
+
+    // x を含むグループのサイズ
+    int size(int x) {
+        return siz[root(x)];
+    }
+};
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N, Q; cin >> N >> Q;
+    vector<int> P(Q), A(Q), B(Q);
+    rep(i, Q) cin >> P[i] >> A[i] >> B[i];
+
+    UnionFind uf(N);
+    vector<string> ans;
+    rep(i, Q){
+        if(P[i] == 0){
+            uf.merge(A[i], B[i]);
+        }
+        else{
+            if (uf.issame(A[i], B[i])) ans.push_back("Yes");
+            else ans.push_back("No");
+        }
     }
-    cout << "Yes" << endl;
+
+    fore(a, ans) cout << a << ln;
 }
+

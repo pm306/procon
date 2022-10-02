@@ -46,38 +46,35 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 #define debug(...)(void(0))
 #endif
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
-//////////////////////////////////////////////////////////////////////////////////////////////////]
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
+using mint = modint998244353;
 
+mint dp[2020][2020][2];
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    int N, M, K, S, T, X;
+    cin >> N >> M >> K >> S >> T >> X;
+    S--, T--, X--;
+
+    vector<vector<int>> G(N);
+    rep(i, M){
+        int a, b; cin >> a >> b; a--, b--;
+        G[a].push_back(b);
+        G[b].push_back(a);
     }
-    cout << "Yes" << endl;
+
+    dp[0][S][0] = 1;
+    for(int i=0; i<K; i++){
+        for(int j=0; j<N; j++){
+            for(int k=0; k<2; k++){
+                if(dp[i][j][k] == 0) continue;
+                for(auto to : G[j]){
+                    int odd = to == X ? abs(k - 1) : k;
+                    dp[i+1][to][odd] += dp[i][j][k];
+                }
+            }
+        }
+    }
+    cout << dp[K][T][0].val() << ln;
 }
+

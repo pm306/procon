@@ -48,36 +48,61 @@ template <class T, class... Args> void debug_out(const T& x, const Args& ... arg
 struct fast_ios { fast_ios() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(20); cerr << fixed << setprecision(7); }; } fast_ios_;
 //////////////////////////////////////////////////////////////////////////////////////////////////]
 
-vector<pair<char, int>> lanlength(string s){
-    int cnt = 0; char last = ' ';
-    vector<pair<char, int>> res;
-    rep(i, (int)s.size()){
-        if(last == s[i]){
-            cnt++;
-        }
-        else{
-            if(i){
-                res.push_back({last, cnt});
-            }
-            last = s[i];
-            cnt = 1;
-        }
-    }
-    res.push_back({last, cnt});
-    return res;
-}
 
 int main(){
-    string s, t; cin >> s >> t;
-    auto ss = lanlength(s);
-    auto tt = lanlength(t);
-    
-    if(ss.size() != tt.size()) drop("No");
-    rep(i, (int)ss.size()){
-        auto [sc, scnt] = ss[i];
-        auto [tc, tcnt] = tt[i];
-        if(sc != tc) drop("No");
-        if(scnt == 1 and tcnt > 1 or scnt > tcnt) drop("No"); 
+    ll N, K; cin >> N >> K;
+    vector<ll> A(N);
+    rep(i, N) cin >> A[i];
+
+    //各数が何回出現したか
+    map<ll, ll> cnt;
+    for(auto a:A)cnt[a]++;
+
+    vector<ll> numbers = A;
+    sort(all(numbers));
+    UNIQUE(numbers);
+
+    //eat:食べる回数, height=今見てるフェーズの高さ
+    ll eat = K, height = 0, nokori = 0;
+    //nokori:=残ったリンゴ入りかごの数
+    for(auto a:A)if(a)nokori++;
+    //フェーズ毎に状態を更新する
+    for(auto n:numbers)if(n!=0){ //n:今回の高さ
+        int bef_height = height; //前回の高さ
+
+        height = n - height;
+        ll cur_eat = nokori * height; //今回食べ切ろうとしてる数
+        debug(eat, cur_eat);
+        //全部食べ切れて次に行く
+        if(eat > cur_eat){
+            eat -= cur_eat; //食事カウントを減らす
+            height = n; //最後に見た高さを更新
+            nokori -= cnt[n]; //残りの箱の数を更新
+        }
+        //食べきれない
+        else{
+            ll roop = eat / nokori;  //周回できる数
+            debug(eat, cnt[n], roop);
+            ll simyu_cnt = eat % nokori; //余り
+            debug(simyu_cnt, eat, nokori);
+            // 全体を食べる回数はheight(前回の高さ)+roop
+            ll zentai_roop = bef_height + roop;
+            debug(bef_height, roop, zentai_roop); //おかしい。2になるはず
+
+            for(auto&a:A) a = max(0ll, a-zentai_roop); //全体を食べる
+            //シミュレーション
+            int cnt = 0;
+            rep(i, N){
+                if(cnt == simyu_cnt)break;
+                if(A[i]){
+                    cnt++;
+                    A[i]--;
+                }
+            }
+            for(auto a:A) cout << a << " "; 
+            cout << endl;
+            exit(0);
+        }
     }
-    cout << "Yes" << endl;
 }
+
